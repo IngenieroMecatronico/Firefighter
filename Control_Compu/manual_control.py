@@ -100,16 +100,18 @@ print("ESP32 conectado.")
 # ARRANQUE EN MANUAL
 # ============================================================
 
-send("mode=manual")
-
 speed = 30
 
-send(
-    f"speed={speed}"
-)
+# El ESP32 arranca en E-STOP: esperar confirmacion antes de mover.
 
 pump_enabled = False
+emergency_enabled = False  # Estado solicitado, no confirmacion del C3
+estop_active = True         # El firmware arranca bloqueado
+reset_pending = False
+last_toggle_time = 0.0
+TOGGLE_DEBOUNCE_S = 0.45
 
+# No enviar modo ni velocidad hasta confirmar el rearme.
 
 # ============================================================
 # CONTROLES
@@ -150,6 +152,7 @@ print("Flecha abajo      = TILT abajo")
 print()
 print("C = Centrar torreta")
 print("B = Bomba ON/OFF")
+print("T = Luces de emergencia + sirena (triangulo PS4)")
 print()
 print("========================================")
 print("DIAGNOSTICO")
@@ -157,6 +160,8 @@ print("========================================")
 print()
 print("P = Camera PING")
 print("X = ESTOP")
+print("R = Solicitar rearme E-STOP")
+print("Al conectar: pulsa R y espera OK ESTOP_CLEARED")
 print("ESC = Salir")
 print()
 print("Velocidad inicial:", speed, "RPM")
@@ -207,6 +212,27 @@ try:
 
         if response:
 
+            # El rearme se confirma desde el ESP32 principal.
+            if response == "OK ESTOP_CLEARED":
+                estop_active = False
+                reset_pending = False
+                pump_enabled = False
+                emergency_enabled = False
+                send("mode=manual")
+                send(f"speed={speed}")
+                print("\nE-STOP REARMADO: modo MANUAL habilitado")
+            elif response == "OK ESTOP_ALREADY_CLEARED":
+                estop_active = False
+                reset_pending = False
+                send("mode=manual")
+                send(f"speed={speed}")
+                print("\nE-STOP ya estaba liberado: modo MANUAL habilitado")
+            elif response in ("ESTOP_ACTIVE", "OK ESTOP_ACTIVE") or response.endswith("ESTOP_ACTIVE"):
+                estop_active = True
+                reset_pending = False
+                pump_enabled = False
+                emergency_enabled = False
+
             # Mostrar especialmente mensajes de camara
             if response.startswith("CAMERA="):
 
@@ -236,6 +262,11 @@ try:
 
         key = msvcrt.getch()
 
+        # Bloqueo local: nunca enviar movimiento, modo ni bomba
+        # antes de que el principal confirme el rearme.
+        if estop_active and key.lower() not in (b'r', b'x', b'p', b'\x1b'):
+            print("\nBLOQUEADO: pulsa R y espera confirmacion E-STOP")
+            continue
 
         # ====================================================
         # TECLAS ESPECIALES
@@ -534,6 +565,48 @@ try:
 
 
         # ====================================================
+        # LUCES DE EMERGENCIA Y BUZZER (TRIANGULO PS4)
+        #
+        # Misma orden UDP que el control PS4:
+        #   emergency_toggle -> ESP32 principal
+        #   EMERGENCY_TOGGLE -> ESP32-C3
+        #
+        # No es E-STOP. El estado local es estimado:
+        # el C3 debe confirmar el estado real.
+        # ====================================================
+
+        if key == b't':
+
+            now = time.monotonic()
+            if now - last_toggle_time < TOGGLE_DEBOUNCE_S:
+                continue
+            last_toggle_time = now
+            send("emergency_toggle")
+            emergency_enabled = not emergency_enabled
+
+            print()
+            print("LUCES + SIRENA: comando TOGGLE enviado")
+            print("Estado solicitado:",
+                  "ON" if emergency_enabled else "OFF")
+
+            continue
+
+        # ====================================================
+        # SOLICITAR REARME DEL E-STOP
+        # El ESP32 y C3 validan el rearme.
+        # ====================================================
+
+        if key == b'r':
+            if reset_pending:
+                print("\nRearme solicitado; esperando confirmacion del C3")
+                continue
+            reset_pending = True
+            send("estop_reset")
+            print()
+            print("Solicitando ESTOP_RESET; esperando confirmacion")
+            continue
+
+        # ====================================================
         # CAMERA PING
         # ====================================================
 
@@ -562,6 +635,9 @@ try:
             )
 
             pump_enabled = False
+            emergency_enabled = False
+            estop_active = True
+            reset_pending = False
 
             print()
             print(
