@@ -228,11 +228,11 @@ La señalización de luces y buzzer es independiente del E-STOP. El protocolo UA
 | PAN / TILT manual | Stick derecho | Flechas |
 | Bomba | X | B |
 | Centrar torreta | Cuadrado | C |
-| Luces y buzzer | Triángulo | T (cliente ampliado) |
+| Luces y buzzer | Triángulo | T  |
 | Modos MANUAL / SEMI / AUTO | Touchpad | 1 / 2 / 3 |
 | STOP | Círculo | Espacio |
 | E-STOP | OPTIONS | X |
-| Rearme | PS sostenido | R (cliente ampliado) |
+| Rearme | PS sostenido | R  |
 
 ## Instalación y ejecución
 
