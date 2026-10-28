@@ -13,7 +13,6 @@
 
 Proyecto de tesis que integra una plataforma de cuatro motores paso a paso, un ESP32 principal, un ESP32-C3 SuperMini, una cámara OpenMV H7 R2 con interfaz WINC1500 y clientes de computadora para mando PS4 y teclado. Su objetivo es detectar regiones luminosas asociadas al fuego, orientar una torreta PAN/TILT y accionar una bomba de agua.
 
-Este documento describe los **archivos fuente presentes en el repositorio**. «Implementado» indica que existe una ruta ejecutable en el código; no constituye certificación de funcionamiento físico ni resultado experimental. Los comentarios que afirman comprobaciones físicas se identifican como tales. No se incluyen esquemáticos, resultados cuantitativos ni modelos STL en la copia revisada.
 
 ## 1. Arquitectura y alcance
 
