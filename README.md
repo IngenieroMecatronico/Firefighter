@@ -49,6 +49,9 @@ Firefighter/
 │   ├── pan.py
 │   ├── tilt.py
 │   └── pump.py
+├── Firefighter_Matlab/
+│   ├── Firefighter.m
+│   └── matlab.mat
 ├── Firefighter_Plataforma/
 │   ├── platformio.ini
 │   ├── include/
@@ -101,6 +104,8 @@ Firefighter/
 | `Control_Compu/manual_control.py` | Cliente básico de teclado. |
 | `Firefighter_Plataforma/manual_control.py` | Cliente de teclado con rearme y señalización. |
 | `Prueba_comunicacion/udp_test.py` | Script auxiliar de comunicación UDP. |
+| `Firefighter_Matlab/Firefighter.m` | Script MATLAB para registrar y visualizar trayectorias y orientaciones mediante Robotat. |
+| `Firefighter_Matlab/matlab.mat` | Archivo MAT con variables guardadas para su análisis en MATLAB. |
 
 ## Pinout
 
@@ -268,7 +273,7 @@ La carpeta `STLs/` reúne los modelos tridimensionales destinados a documentar y
 
 ## Tecnologías
 
-**C++**, **Python**, **MicroPython**, **PlatformIO**, **Arduino IDE**, **OpenMV IDE**, **Pygame**, **WiFi UDP**, **UART** e **impresión 3D**.
+**C++**, **Python**, **MicroPython**, **MATLAB**, **Robotat**, **PlatformIO**, **Arduino IDE**, **OpenMV IDE**, **Pygame**, **WiFi UDP**, **UART** e **impresión 3D**.
 
 ## Autoría y licencia
 
